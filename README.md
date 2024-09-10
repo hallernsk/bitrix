@@ -1,5 +1,5 @@
 bitrix
-task_1
+task_2
 
-Создание шаблона news.list:
-public_html/bitrix/components/bitrix/news.list/new_template/template.php
+Создание шаблона form.result.new:
+local/templates/.default/components/bitrix/form.result.new/
