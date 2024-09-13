@@ -1,108 +1,63 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="images/favicon.604825ed.ico" type="image/x-icon">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
 
-if ($arResult["isFormErrors"] == "Y"):?><?=$arResult["FORM_ERRORS_TEXT"];?><?endif;?>
-<?=$arResult["FORM_NOTE"]?>
-<?if ($arResult["isFormNote"] != "Y")
-{
-?>
-<?=$arResult["FORM_HEADER"]?>
-<table>
-<?
-if ($arResult["isFormDescription"] == "Y" || $arResult["isFormTitle"] == "Y" || $arResult["isFormImage"] == "Y")
-{
-?>
-	<tr>
-		<td><?
-if ($arResult["isFormTitle"])
-{
-?>
-	<h3><?=$arResult["FORM_TITLE"]?></h3>
-<?
-} //endif ;
+<div class="contact-form">
 
-	if ($arResult["isFormImage"] == "Y")
-	{
-	?>
-	<a href="<?=$arResult["FORM_IMAGE"]["URL"]?>" target="_blank" alt="<?=GetMessage("FORM_ENLARGE")?>"><img src="<?=$arResult["FORM_IMAGE"]["URL"]?>" <?if($arResult["FORM_IMAGE"]["WIDTH"] > 300):?>width="300"<?elseif($arResult["FORM_IMAGE"]["HEIGHT"] > 200):?>height="200"<?else:?><?=$arResult["FORM_IMAGE"]["ATTR"]?><?endif;?> hspace="3" vscape="3" border="0" /></a>
-	<?//=$arResult["FORM_IMAGE"]["HTML_CODE"]?>
-	<?
-	} //endif
-	?>
+    <div class="contact-form__head">
+        <div class="contact-form__head-title">Связаться</div>
+        <div class="contact-form__head-text">Наши сотрудники помогут выполнить подбор услуги и&nbsp;расчет цены с&nbsp;учетом ваших требований</div>
+    </div>
 
-			<p><?=$arResult["FORM_DESCRIPTION"]?></p>
-		</td>
-	</tr>
-	<?
-} // endif
-	?>
-</table>
-<br />
-<table class="form-table data-table">
-	<thead>
-		<tr>
-			<th colspan="2">&nbsp;</th>
-		</tr>
-	</thead>
-	<tbody>
-	<?
-	foreach ($arResult["QUESTIONS"] as $FIELD_SID => $arQuestion)
-	{
-		if ($arQuestion['STRUCTURE'][0]['FIELD_TYPE'] == 'hidden')
-		{
-			echo $arQuestion["HTML_CODE"];
-		}
-		else
-		{
-	?>
-		<tr>
-			<td>
-				<?if (is_array($arResult["FORM_ERRORS"]) && array_key_exists($FIELD_SID, $arResult['FORM_ERRORS'])):?>
-				<span class="error-fld" title="<?=htmlspecialcharsbx($arResult["FORM_ERRORS"][$FIELD_SID])?>"></span>
-				<?endif;?>
-				<?=$arQuestion["CAPTION"]?><?if ($arQuestion["REQUIRED"] == "Y"):?><?=$arResult["REQUIRED_SIGN"];?><?endif;?>
-				<?=$arQuestion["IS_INPUT_CAPTION_IMAGE"] == "Y" ? "<br />".$arQuestion["IMAGE"]["HTML_CODE"] : ""?>
-			</td>
-			<td><?=$arQuestion["HTML_CODE"]?></td>
-		</tr>
-	<?
-		}
-	} //endwhile
-	?>
-<?
-if($arResult["isUseCaptcha"] == "Y")
-{
-?>
-		<tr>
-			<th colspan="2"><b><?=GetMessage("FORM_CAPTCHA_TABLE_TITLE")?></b></th>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td><input type="hidden" name="captcha_sid" value="<?=htmlspecialcharsbx($arResult["CAPTCHACode"]);?>" /><img src="/bitrix/tools/captcha.php?captcha_sid=<?=htmlspecialcharsbx($arResult["CAPTCHACode"]);?>" width="180" height="40" /></td>
-		</tr>
-		<tr>
-			<td><?=GetMessage("FORM_CAPTCHA_FIELD_TITLE")?><?=$arResult["REQUIRED_SIGN"];?></td>
-			<td><input type="text" name="captcha_word" size="30" maxlength="50" value="" class="inputtext" /></td>
-		</tr>
-<?
-} // isUseCaptcha
-?>
-	</tbody>
-	<tfoot>
-		<tr>
-			<th colspan="2">
-				<input <?=(intval($arResult["F_RIGHT"]) < 10 ? "disabled=\"disabled\"" : "");?> type="submit" name="web_form_submit" value="<?=htmlspecialcharsbx(trim($arResult["arForm"]["BUTTON"]) == '' ? GetMessage("FORM_ADD") : $arResult["arForm"]["BUTTON"]);?>" />
-				<?if ($arResult["F_RIGHT"] >= 15):?>
-				&nbsp;<input type="hidden" name="web_form_apply" value="Y" /><input type="submit" name="web_form_apply" value="<?=GetMessage("FORM_APPLY")?>" />
-				<?endif;?>
-				&nbsp;<input type="reset" value="<?=GetMessage("FORM_RESET");?>" />
-			</th>
-		</tr>
-	</tfoot>
-</table>
-<p>
-<?=$arResult["REQUIRED_SIGN"];?> - <?=GetMessage("FORM_REQUIRED_FIELDS")?>
-</p>
-<?=$arResult["FORM_FOOTER"]?>
-<?
-} //endif (isFormNote)
+    <?if ($arResult["isFormErrors"] == "Y"):?>
+        <div class="form-error"><?=$arResult["FORM_ERRORS_TEXT"];?></div>
+    <?endif;?>
+    
+    <?=$arResult["FORM_NOTE"]?>
+
+    <?if ($arResult["isFormNote"] != "Y"):?>
+
+        <?=$arResult["FORM_HEADER"]?>
+        
+        <form class="contact-form__form" action="<?=POST_FORM_ACTION_URI?>" method="POST">
+            <?=bitrix_sessid_post()?>
+
+            <?foreach ($arResult["QUESTIONS"] as $FIELD_SID => $arQuestion):?>
+                <?if ($arQuestion['STRUCTURE'][0]['FIELD_TYPE'] != 'hidden'):?>
+                    <div class="input contact-form__input">
+                        <label class="input__label" for="<?=$FIELD_SID?>">
+                            <div class="input__label-text"><?=$arQuestion["CAPTION"]?><?if ($arQuestion["REQUIRED"] == "Y"):?><?=$arResult["REQUIRED_SIGN"];?><?endif;?></div>
+                            <?=$arQuestion["HTML_CODE"]?>
+                            <div class="input__notification"></div>
+                        </label>
+                    </div>
+                <?else:?>
+                    <?=$arQuestion["HTML_CODE"]?>
+                <?endif;?>
+            <?endforeach;?>
+
+            <div class="contact-form__bottom">
+                <div class="contact-form__bottom-policy">
+                    Нажимая &laquo;Отправить&raquo;, Вы&nbsp;подтверждаете, что ознакомлены, полностью согласны и&nbsp;принимаете условия &laquo;Согласия на&nbsp;обработку персональных данных&raquo;.
+                </div>
+                <button class="form-button contact-form__bottom-button" data-success="Отправлено" data-error="Ошибка отправки" type="submit" name="web_form_submit">
+                    <div class="form-button__title">Оставить заявку</div>
+                </button>
+            </div>
+        </form>
+
+        <?=$arResult["FORM_FOOTER"]?>
+    
+    <?endif;?>
+
+</div>
+
+</body>
+</html>
