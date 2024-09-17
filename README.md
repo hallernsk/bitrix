@@ -3,4 +3,4 @@
 
 Создание шаблона news.detail (в комплексном компоненте news):
 
-/local/templates/.default/components/bitrix/news/template_task3_1/bitrix/news.detail/.default
+/local/templates/.default/components/bitrix/news/template_task3/bitrix/news.detail/.default
