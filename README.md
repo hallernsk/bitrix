@@ -1,5 +1,6 @@
-bitrix
-task_1
+#### 1С-Битрикс: Управление сайтом
+##### task_3
 
-Создание шаблона news.list:
-public_html/bitrix/components/bitrix/news.list/new_template/template.php
+Создание шаблона news.detail (в комплексном компоненте news):
+
+/local/templates/.default/components/bitrix/news/template_task3_1/bitrix/news.detail/.default
