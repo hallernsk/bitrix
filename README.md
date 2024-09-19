@@ -6,4 +6,6 @@
 /local/templates/.default/components/bitrix/news/template_task3/bitrix/news.detail/.default
 
 
-news - вывод новостей с фильтром по разделам (news_list)
+news_list - вывод новостей с фильтром по разделам (простой компонент bitrix:news.list)
+
+news - комплексный компонент bitrix:news
