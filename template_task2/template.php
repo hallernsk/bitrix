@@ -1,63 +1,122 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <title></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
-    <link rel="shortcut icon" href="images/favicon.604825ed.ico" type="image/x-icon">
-    <link href="style.css" rel="stylesheet">
-</head>
-<body>
+<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-<div class="contact-form">
+if ($arResult["isFormErrors"] == "Y"):?><?=$arResult["FORM_ERRORS_TEXT"];?><?endif;?>
 
-    <div class="contact-form__head">
-        <div class="contact-form__head-title">Связаться</div>
-        <div class="contact-form__head-text">Наши сотрудники помогут выполнить подбор услуги и&nbsp;расчет цены с&nbsp;учетом ваших требований</div>
-    </div>
+<?if ($arResult["isFormNote"] == "Y"):?> 
+    <?php 
+    echo "<pre>";
+    print_r($arResult); 
+    echo "</pre>";
+    ?>
+<?endif;?>
 
-    <?if ($arResult["isFormErrors"] == "Y"):?>
-        <div class="form-error"><?=$arResult["FORM_ERRORS_TEXT"];?></div>
-    <?endif;?>
+
+<?=$arResult["FORM_NOTE"]?>
+<?if ($arResult["isFormNote"] != "Y")
+{
+?>
+<?
+// Проверяем, есть ли у нас кастомный HTML-код для формы
+if (strpos($arResult["FORM_HEADER"], '<div class="contact-form__form"') !== false) {
+    // Если есть, то выводим $arResult["FORM_HEADER"] без тега <form>
+    echo  preg_replace('/<form[^>]*>/', '', $arResult["FORM_HEADER"]);
+} else {
+    // Если нет, то выводим стандартный $arResult["FORM_HEADER"]
+    echo $arResult["FORM_HEADER"];
+}
+?>
+<table>
+<?
+if ($arResult["isFormDescription"] == "Y" || $arResult["isFormTitle"] == "Y" || $arResult["isFormImage"] == "Y")
+{
+?>
+	<tr>
+		<td><?
+if ($arResult["isFormTitle"])
+{
+?>
+	<h3><?=$arResult["FORM_TITLE"]?></h3>
+<?
+} //endif ;
+
+	if ($arResult["isFormImage"] == "Y")
+	{
+	?>
+	<a href="<?=$arResult["FORM_IMAGE"]["URL"]?>" target="_blank" alt="<?=GetMessage("FORM_ENLARGE")?>"><img src="<?=$arResult["FORM_IMAGE"]["URL"]?>" <?if($arResult["FORM_IMAGE"]["WIDTH"] > 300):?>width="300"<?elseif($arResult["FORM_IMAGE"]["HEIGHT"] > 200):?>height="200"<?else:?><?=$arResult["FORM_IMAGE"]["ATTR"]?><?endif;?> hspace="3" vscape="3" border="0" /></a>
+	<?//=$arResult["FORM_IMAGE"]["HTML_CODE"]?>
+	<?
+	} //endif
+	?>
+
+			<p><?=$arResult["FORM_DESCRIPTION"]?></p>
+		</td>
+	</tr>
+	<?
+} // endif
+	?>
+</table>
+<br />
+<table class="form-table data-table">
+	<thead>
+		<tr>
+			<th colspan="2"> </th>
+		</tr>
+	</thead>
+	<tbody>
     
-    <?=$arResult["FORM_NOTE"]?>
+       <div class="contact-form">
+               <div class="contact-form__head">
+                   <div class="contact-form__head-title">Связаться</div>
+                   <div class="contact-form__head-text">Наши сотрудники помогут выполнить подбор услуги и расчет цены с учетом
+                       ваших требований
+                   </div>
+               </div>
+               <div class="contact-form__form" >  
+                   <div class="contact-form__form-inputs">
 
-    <?if ($arResult["isFormNote"] != "Y"):?>
+                       <? foreach ($arResult["QUESTIONS"] as $FIELD_SID => $arQuestion): ?>
+                           <? if ($arQuestion["STRUCTURE"][0]["FIELD_TYPE"] != "textarea"): ?> 
+                               <div class="input contact-form__input">
+                                   <label class="input__label" for="<?=$FIELD_SID?>">
+                                       <div class="input__label-text">
+                                           <?=$arQuestion["CAPTION"]?><?if ($arQuestion["REQUIRED"] == "Y"):?><?=$arResult["REQUIRED_SIGN"];?><?endif;?>
+                                       </div>
+                                       <?=$arQuestion["HTML_CODE"]?>   
+                                   </label>
+                               </div>
+                           <? else: ?>
+                               <div class="contact-form__form-message">
+                                   <div class="input">
+                                       <label class="input__label" for="<?=$FIELD_SID?>">
+                                           <div class="input__label-text">
+                                               <?=$arQuestion["CAPTION"]?><?if ($arQuestion["REQUIRED"] == "Y"):?><?=$arResult["REQUIRED_SIGN"];?><?endif;?>
+                                           </div>
+                                           <?=$arQuestion["HTML_CODE"]?>  
+                                          
+                                       </label>
+                                   </div>
+                               </div>
+                           <? endif; ?>
+                       <? endforeach; ?>
 
-        <?=$arResult["FORM_HEADER"]?>
-        
-        <form class="contact-form__form" action="<?=POST_FORM_ACTION_URI?>" method="POST">
-            <?=bitrix_sessid_post()?>
+                   </div>
 
-            <?foreach ($arResult["QUESTIONS"] as $FIELD_SID => $arQuestion):?>
-                <?if ($arQuestion['STRUCTURE'][0]['FIELD_TYPE'] != 'hidden'):?>
-                    <div class="input contact-form__input">
-                        <label class="input__label" for="<?=$FIELD_SID?>">
-                            <div class="input__label-text"><?=$arQuestion["CAPTION"]?><?if ($arQuestion["REQUIRED"] == "Y"):?><?=$arResult["REQUIRED_SIGN"];?><?endif;?></div>
-                            <?=$arQuestion["HTML_CODE"]?>
-                            <div class="input__notification"></div>
-                        </label>
-                    </div>
-                <?else:?>
-                    <?=$arQuestion["HTML_CODE"]?>
-                <?endif;?>
-            <?endforeach;?>
-
-            <div class="contact-form__bottom">
-                <div class="contact-form__bottom-policy">
-                    Нажимая &laquo;Отправить&raquo;, Вы&nbsp;подтверждаете, что ознакомлены, полностью согласны и&nbsp;принимаете условия &laquo;Согласия на&nbsp;обработку персональных данных&raquo;.
-                </div>
-                <button class="form-button contact-form__bottom-button" data-success="Отправлено" data-error="Ошибка отправки" type="submit" name="web_form_submit">
-                    <div class="form-button__title">Оставить заявку</div>
-                </button>
-            </div>
-        </form>
-
-        <?=$arResult["FORM_FOOTER"]?>
-    
-    <?endif;?>
-
-</div>
-
-</body>
-</html>
+                   <div class="contact-form__bottom">
+                       <div class="contact-form__bottom-policy">Нажимая «Отправить», Вы подтверждаете, что
+                           ознакомлены, полностью согласны и принимаете условия «Согласия на обработку персональных
+                           данных».
+                       </div>
+                       <input type="submit" class="form-button contact-form__bottom-button" data-success="Отправлено" data-error="Ошибка отправки"  name="web_form_submit" value="Оставить заявку"> <---  Ваша кнопка
+                   </div>
+               </div> 
+           </div>
+       
+	</tbody>
+</table>
+<p>
+<?=$arResult["REQUIRED_SIGN"];?> - <?=GetMessage("FORM_REQUIRED_FIELDS")?>
+</p>
+<?=$arResult["FORM_FOOTER"]?>
+<?
+} //endif (isFormNote)
+?>
