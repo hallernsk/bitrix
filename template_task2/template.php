@@ -2,14 +2,6 @@
 
 if ($arResult["isFormErrors"] == "Y"):?><?=$arResult["FORM_ERRORS_TEXT"];?><?endif;?>
 
-<?if ($arResult["isFormNote"] == "Y"):?> 
-    <?php 
-    echo "<pre>";
-    print_r($arResult); 
-    echo "</pre>";
-    ?>
-<?endif;?>
-
 
 <?=$arResult["FORM_NOTE"]?>
 <?if ($arResult["isFormNote"] != "Y")
@@ -35,7 +27,7 @@ if ($arResult["isFormDescription"] == "Y" || $arResult["isFormTitle"] == "Y" || 
 if ($arResult["isFormTitle"])
 {
 ?>
-	<h3><?=$arResult["FORM_TITLE"]?></h3>
+
 <?
 } //endif ;
 
@@ -48,7 +40,6 @@ if ($arResult["isFormTitle"])
 	} //endif
 	?>
 
-			<p><?=$arResult["FORM_DESCRIPTION"]?></p>
 		</td>
 	</tr>
 	<?
@@ -66,10 +57,8 @@ if ($arResult["isFormTitle"])
     
        <div class="contact-form">
                <div class="contact-form__head">
-                   <div class="contact-form__head-title">Связаться</div>
-                   <div class="contact-form__head-text">Наши сотрудники помогут выполнить подбор услуги и расчет цены с учетом
-                       ваших требований
-                   </div>
+                   <div class="contact-form__head-title"><?=$arResult["FORM_TITLE"]?></div>
+                   <div class="contact-form__head-text"><?=$arResult["FORM_DESCRIPTION"]?></div>
                </div>
                <div class="contact-form__form" >  
                    <div class="contact-form__form-inputs">
@@ -106,7 +95,7 @@ if ($arResult["isFormTitle"])
                            ознакомлены, полностью согласны и принимаете условия «Согласия на обработку персональных
                            данных».
                        </div>
-                       <input type="submit" class="form-button contact-form__bottom-button" data-success="Отправлено" data-error="Ошибка отправки"  name="web_form_submit" value="Оставить заявку"> <---  Ваша кнопка
+                       <input type="submit" class="form-button contact-form__bottom-button" data-success="Отправлено" data-error="Ошибка отправки"  name="web_form_submit" value="Оставить заявку">
                    </div>
                </div> 
            </div>
