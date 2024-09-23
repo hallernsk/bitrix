@@ -2,30 +2,14 @@
 
 if ($arResult["isFormErrors"] == "Y"):?><?=$arResult["FORM_ERRORS_TEXT"];?><?endif;?>
 
-
 <?=$arResult["FORM_NOTE"]?>
 <?if ($arResult["isFormNote"] != "Y")
 {
 ?>
-<?
-
-if (strpos($arResult["FORM_HEADER"], '<div class="contact-form__form"') !== false) {
-    echo  preg_replace('/<form[^>]*>/', '', $arResult["FORM_HEADER"]);
-} else {
-    echo $arResult["FORM_HEADER"];
-}
-?>
-
-</table>
-<br />
+<?=$arResult["FORM_HEADER"];?>
+<br/>
 <table class="form-table data-table">
-	<thead>
-		<tr>
-			<th colspan="2"> </th>
-		</tr>
-	</thead>
-	<tbody>
-    
+	<tbody>    
        <div class="contact-form">
                <div class="contact-form__head">
                    <div class="contact-form__head-title"><?=$arResult["FORM_TITLE"]?></div>
@@ -72,8 +56,7 @@ if (strpos($arResult["FORM_HEADER"], '<div class="contact-form__form"') !== fals
                         </button>
                    </div>
                </div> 
-           </div>
-       
+           </div>       
 	</tbody>
 </table>
 <p>
