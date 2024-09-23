@@ -62,11 +62,14 @@ if (strpos($arResult["FORM_HEADER"], '<div class="contact-form__form"') !== fals
                    </div>
 
                    <div class="contact-form__bottom">
-                       <div class="contact-form__bottom-policy">Нажимая «Отправить», Вы подтверждаете, что
-                           ознакомлены, полностью согласны и принимаете условия «Согласия на обработку персональных
-                           данных».
-                       </div>
-                       <input type="submit" class="form-button contact-form__bottom-button" data-success="Отправлено" data-error="Ошибка отправки"  name="web_form_submit" value="Оставить заявку">
+                        <div class="contact-form__bottom-policy">Нажимая «Отправить», Вы подтверждаете, что
+                            ознакомлены, полностью согласны и принимаете условия «Согласия на обработку персональных
+                            данных».
+                        </div>
+                        <button class="form-button contact-form__bottom-button" data-success="Отправлено" data-error="Ошибка отправки" type="submit" name="web_form_submit">
+                            <input type="hidden" name="web_form_submit" value="Y"> 
+                            <div class="form-button__title">Оставить заявку</div>
+                        </button>
                    </div>
                </div> 
            </div>
