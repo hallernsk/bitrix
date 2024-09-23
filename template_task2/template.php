@@ -8,43 +8,14 @@ if ($arResult["isFormErrors"] == "Y"):?><?=$arResult["FORM_ERRORS_TEXT"];?><?end
 {
 ?>
 <?
-// Проверяем, есть ли у нас кастомный HTML-код для формы
+
 if (strpos($arResult["FORM_HEADER"], '<div class="contact-form__form"') !== false) {
-    // Если есть, то выводим $arResult["FORM_HEADER"] без тега <form>
     echo  preg_replace('/<form[^>]*>/', '', $arResult["FORM_HEADER"]);
 } else {
-    // Если нет, то выводим стандартный $arResult["FORM_HEADER"]
     echo $arResult["FORM_HEADER"];
 }
 ?>
-<table>
-<?
-if ($arResult["isFormDescription"] == "Y" || $arResult["isFormTitle"] == "Y" || $arResult["isFormImage"] == "Y")
-{
-?>
-	<tr>
-		<td><?
-if ($arResult["isFormTitle"])
-{
-?>
 
-<?
-} //endif ;
-
-	if ($arResult["isFormImage"] == "Y")
-	{
-	?>
-	<a href="<?=$arResult["FORM_IMAGE"]["URL"]?>" target="_blank" alt="<?=GetMessage("FORM_ENLARGE")?>"><img src="<?=$arResult["FORM_IMAGE"]["URL"]?>" <?if($arResult["FORM_IMAGE"]["WIDTH"] > 300):?>width="300"<?elseif($arResult["FORM_IMAGE"]["HEIGHT"] > 200):?>height="200"<?else:?><?=$arResult["FORM_IMAGE"]["ATTR"]?><?endif;?> hspace="3" vscape="3" border="0" /></a>
-	<?//=$arResult["FORM_IMAGE"]["HTML_CODE"]?>
-	<?
-	} //endif
-	?>
-
-		</td>
-	</tr>
-	<?
-} // endif
-	?>
 </table>
 <br />
 <table class="form-table data-table">
