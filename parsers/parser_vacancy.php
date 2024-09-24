@@ -1,144 +1,102 @@
 <?php
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
-
-// Подключение модуля инфоблоков
-CModule::IncludeModule('iblock');
-
-header('Content-type: text/html; charset=utf-8');
-
-$iblockId = 10;  // ID инфоблока Вакансии
-
-$csvFilePath = $_SERVER["DOCUMENT_ROOT"] . '/vacancy.csv';
-
-// Массив соответствий XML_ID свойств значениям из CSV
-$propertyMapping = [
-    'ACTIVITY' => [
-        'Полная занятость' => 'POLN',
-        'Временная занятость' => 'VREMYAN',
-        'Частичная занятость' => 'CHATTICH',
-        '  в ночные часы' => 'NOCH',
-        '  в выходные дни' => 'VIHODN',
-        '  на летний период' => 'LETO',
-        '  период' => 'PERIOD',
-        'Проектная' => 'PRAKTIKA',
-        'Стажировка' => 'STAJER',
-        'Дипломная практика' => 'DIPLOM_PRAKT',
-    ],
-    'FIELD' => [
-        'Производство' => '1',
-        'Продажи' => '2',
-        'Маркетинг' => '3',
-        'Экономика и финансы' => '4',
-        'Бухгалтерский учет' => '5',
-        'Управление персоналом' => '6',
-        'Закупки и логистика' => '7',
-        'Логистика и транспорт' => '8',
-        'Техническое развитие' => '9',
-        'Инвестиции' => '10',
-        'Информационные технологии' => '11',
-        'Отдел промышленной безопасности, охраны труда и экологии' => '12',
-        'АХО' => '13',
-        'Финансовый анализ' => '14',
-        'Персонал' => '15',
-        'Безопасность' => '16',
-        'Служба развития производственной системы' => '17',
-        'Технический департамент' => '18',
-        'Служба по энергообеспечению и инфраструктуре' => '19',
-        'Начальный уровень, Мало опыта ' => '20',
-        'Лесозаготовка' => '21',
-        'Технология и качество' => '22',
-        'Развитие бизнеса' => '23',
-        'Строительство, Недвижимость ' => '24',
-    ],
-    'OFFICE' => [
-        'СВЕЗА Тюмень
-(Усть-Ишимский филиал )' => 'UST_ISHIM',
-        'СВЕЗА Уральский' => 'URAL',
-        'СВЕЗА Тюмень' => 'TYUMEN',
-        'СВЕЗА Усть-Ижора' => 'UST_IZHORA',
-        'СВЕЗА Новатор' => 'NOVATOR',
-        'СВЕЗА Мантурово' => 'MANTUROVO',
-        'СВЕЗА Кострома' => 'KOSTROMA',
-        'СВЕЗА Верхняя Синячиха' => 'TOP_SINYACHIHA',
-        'Свеза Ресурс' => 'RESURS',
-    ],
-    'LOCATION' => [
-        'Москва' => 'MOSCOW',
-        'Тюмень' => 'TUMEN',
-        'Усть-Ишим' => 'OMSK',
-        'Санкт-Петербург' => 'PITER',
-        'Екатеринбург' => 'EBURG',
-        'Кострома' => 'KOSTROMA',
-        'Мантурово' => 'MANTUROVO',
-        'Новатор' => 'NOVATOR',
-        'Уральский' => 'URALSI',
-        'Верхняя Синячиха' => 'SINYACHIHA',
-        'Гамбург, Германия' => 'GAMBURG',
-        'Тотьма' => 'TOTMA',
-    ],
-    'TYPE' => [
-        'Рабочие' => 'WORKERS',
-        'Продажи' => 'SALES',
-        'РСС' => 'RSS',
-    ],
-    'SALARY_TYPE' => [
-        'ОТ' => 'AFTER',
-        'ДО' => 'BEFORE',
-        '=' => 'EQUAL',
-        'Договорная' => 'CONTRACT',
-    ],
-    'SCHEDULE' => [
-        'Сменный график' => 'SMEN',
-        'Полный день' => 'POLN',
-        'Вахтовый метод' => 'VAHTA',
-        'Гибкий график' => 'GIBKII',
-    ],
-];
-
-if (($handle = fopen($csvFilePath, "r")) !== false) {
-    // Пропуск первой строки (заголовки)
-    fgetcsv($handle, 1000, ",");
-
-    // Чтение данных из CSV файла
-    while (($data = fgetcsv($handle, 1000, ",")) !== false) {
-        $arFields = [
-            "IBLOCK_ID" => $iblockId,
-            "NAME" => $data[3], // Название должности
-            "PREVIEW_TEXT" => $data[5], // Обязанности
-            "PROPERTY_VALUES" => [
-                "OFFICE" => getXmlIdByValue($propertyMapping['OFFICE'], trim($data[1])), // Комбинат
-                "LOCATION" => getXmlIdByValue($propertyMapping['LOCATION'], $data[2]), // Местоположение
-                "REQUIRE" => explode("\n", $data[4]), // Требования - массив
-                "CONDITIONS" => explode("\n", $data[6]), // Условия работы - массив
-                "SALARY_VALUE" => preg_replace("/[^0-9]/", '', $data[7]), // Зарплата (значение)
-                "ACTIVITY" => getXmlIdByValue($propertyMapping['ACTIVITY'], $data[9]), // Тип занятости
-                "SCHEDULE" => getXmlIdByValue($propertyMapping['SCHEDULE'], $data[10]), // График работы
-                "FIELD" => getXmlIdByValue($propertyMapping['FIELD'], trim($data[11])), // Сфера деятельности
-                "EMAIL" => $data[12], // Кому направить резюме
-                "TYPE" => getXmlIdByValue($propertyMapping['TYPE'], $data[8]), // Категория позиции
-                "SALARY_TYPE" => getXmlIdByValue($propertyMapping['SALARY_TYPE'], trim(explode(' ', $data[7])[0])), // Тип зарплаты
-                "DATE" => ConvertTimeStamp(strtotime($data[13]), "FULL"), // Дата размещения
-            ],
-        ];
-
-        $element = new CIBlockElement();
-        if ($elementId = $element->Add($arFields)) {
-            echo "Вакансия '{$data[3]}' успешно добавлена (ID: {$elementId})<br>";
-        } else {
-            echo "Ошибка добавления вакансии '{$data[3]}': " . $element->LAST_ERROR . "<br>";
-        }
-    }
-
-    fclose($handle);
-} else {
-    echo "Ошибка открытия файла CSV: {$csvFilePath}";
+require_once($_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/main/include/prolog_before.php");
+if (!$USER->IsAdmin()) {
+    LocalRedirect('/');
 }
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
+// Подключение модуля iblock
+\Bitrix\Main\Loader::includeModule('iblock');
+$row = 1;
+$IBLOCK_ID = 10; // ID инфоблока "Вакансии"
 
-// Вспомогательная функция для получения XML_ID по значению свойства
-function getXmlIdByValue($mapping, $value)
-{
-    return $mapping[$value] ?? false;
+$el = new CIBlockElement();
+$arProps = [];
+
+$rsProp = CIBlockPropertyEnum::GetList(
+    ["SORT" => "ASC", "VALUE" => "ASC"],
+    ['IBLOCK_ID' => $IBLOCK_ID]
+);
+while ($arProp = $rsProp->Fetch()) {
+    $key = trim($arProp['VALUE']);
+    $arProps[$arProp['PROPERTY_CODE']][$key] = $arProp['ID'];
+}
+
+// Очистка инфоблока
+$rsElements = CIBlockElement::GetList([], ['IBLOCK_ID' => $IBLOCK_ID], false, false, ['ID']);
+while ($element = $rsElements->GetNext()) {
+    CIBlockElement::Delete($element['ID']);
+}
+
+// Открытие файла CSV
+if (($handle = fopen("vacancy.csv", "r")) !== false) {
+    // Чтение данных из CSV файла построчно
+    while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+        // Пропуск первой строки (заголовки)
+        if ($row == 1) {
+            $row++;
+            continue;
+        }
+        $row++;
+
+        // Заполнение массива свойств $PROP значениями из CSV файла
+        $PROP['ACTIVITY'] = $data[9];
+        $PROP['FIELD'] = $data[11];
+        $PROP['OFFICE'] = $data[1];
+        $PROP['LOCATION'] = $data[2];
+        $PROP['REQUIRE'] = $data[4];
+        $PROP['DUTY'] = $data[5];
+        $PROP['CONDITIONS'] = $data[6];
+        $PROP['EMAIL'] = $data[12];
+        $PROP['DATE'] = date('d.m.Y');
+        $PROP['TYPE'] = $data[8];
+        $PROP['SALARY_TYPE'] = '';
+        $PROP['SALARY_VALUE'] = $data[7];
+        $PROP['SCHEDULE'] = $data[10];
+
+        // Обработка значений свойств
+        foreach ($PROP as $key => &$value) {
+            $value = trim($value);
+            $value = str_replace('\n', '', $value);
+
+            // Обработка многострочных свойств (разбивка по маркерам "•")
+            if (stripos($value, '•') !== false) {
+                $value = explode('•', $value);
+                array_splice($value, 0, 1);
+                foreach ($value as &$str) {
+                    $str = trim($str);
+                }
+            } elseif ($arProps[$key]) { // Обработка свойств типа "Список"
+                foreach ($arProps[$key] as $propKey => $propVal) {
+
+                    if (stripos($propKey, $value) !== false) {
+                        $value = $propVal;
+                        break;
+                    }
+
+                    if (similar_text($propKey, $value) > 50) {
+                        $value = $propVal;
+                    }
+                }
+            }
+        }
+
+        // Формирование массива для добавления элемента инфоблока
+        $arLoadProductArray = [
+            "MODIFIED_BY" => $USER->GetID(),
+            "IBLOCK_SECTION_ID" => false,
+            "IBLOCK_ID" => $IBLOCK_ID,
+            "PROPERTY_VALUES" => $PROP,
+            "NAME" => $data[3],
+            "ACTIVE" => end($data) ? 'Y' : 'N',
+        ];
+
+        // Добавление элемента
+        if ($PRODUCT_ID = $el->Add($arLoadProductArray)) {
+            echo "Добавлен элемент с ID : " . $PRODUCT_ID . "<br>";
+        } else {
+            echo "Error: " . $el->LAST_ERROR . '<br>';
+        }
+    }
+    fclose($handle);
 }
