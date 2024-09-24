@@ -1,5 +1,10 @@
-bitrix
-task_1
+#### 1С-Битрикс: Управление сайтом
+#### task_4
 
-Создание шаблона news.list:
-public_html/bitrix/components/bitrix/news.list/new_template/template.php
+Создание парсера для заполнения инфоблока Вакансии из файла CSV:
+
+/local/parsers/parser_vacancy.php
+
+/local/parsers/vacancy.csv
+
+
