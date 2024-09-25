@@ -5,10 +5,13 @@ if (!$USER->IsAdmin()) {
     LocalRedirect('/');
 }
 
-// Подключение модуля iblock
+
 \Bitrix\Main\Loader::includeModule('iblock');
+// определяем ID инфоблока "Вакансии"(VACANCIES)
+$iblock = \CIBlock::GetList([], ['CODE' => 'VACANCIES', 'TYPE' => 'CONTENT_RU'])->Fetch();
+$IBLOCK_ID = $iblock['ID'];
+
 $row = 1;
-$IBLOCK_ID = 10; // ID инфоблока "Вакансии"
 
 $el = new CIBlockElement();
 $arProps = [];
@@ -78,6 +81,23 @@ if (($handle = fopen("vacancy.csv", "r")) !== false) {
                         $value = $propVal;
                     }
                 }
+            }
+        }
+
+        // Обработка зарплаты
+        if ($PROP['SALARY_VALUE'] == '-') {
+            $PROP['SALARY_VALUE'] = '';
+        } elseif ($PROP['SALARY_VALUE'] == 'по договоренности') {
+            $PROP['SALARY_VALUE'] = '';
+            $PROP['SALARY_TYPE'] = $arProps['SALARY_TYPE']['договорная'];
+        } else {
+            $arSalary = explode(' ', $PROP['SALARY_VALUE']);
+            if ($arSalary[0] == 'от' || $arSalary[0] == 'до') {
+                $PROP['SALARY_TYPE'] = $arProps['SALARY_TYPE'][$arSalary[0]];
+                array_splice($arSalary, 0, 1);
+                $PROP['SALARY_VALUE'] = implode(' ', $arSalary);
+            } else {
+                $PROP['SALARY_TYPE'] = $arProps['SALARY_TYPE']['='];
             }
         }
 
