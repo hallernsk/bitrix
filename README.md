@@ -1,10 +1,12 @@
 #### 1С-Битрикс: Управление сайтом
-#### task_4
+#### task_5
 
-Создание парсера для заполнения инфоблока Вакансии из файла CSV:
+Создание обработчика событий и агента (в тренировочном модуде):
 
-/local/parsers/parser_vacancy.php
+/local/modules/dev.site - Тренировочный модуль
 
-/local/parsers/vacancy.csv
+/local/modules/dev.site/lib/Handlers/Iblock.php -  Обработчик
+
+/local/modules/dev.site/lib/Agents/Iblock.php -  Агент
 
 
