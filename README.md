@@ -5,8 +5,10 @@
 
 /local/modules/dev.site - Тренировочный модуль
 
-/local/modules/dev.site/lib/Handlers/Iblock.php -  Обработчик
+/local/modules/dev.site/lib/Handlers/Iblock.php - Обработчик
 
-/local/modules/dev.site/lib/Agents/Iblock.php -  Агент
+/local/modules/dev.site/lib/Agents/Iblock.php - Агент
+
+/local/php_interface/init.php - регистрация обработчика
 
 
