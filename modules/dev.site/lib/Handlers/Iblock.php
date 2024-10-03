@@ -16,7 +16,7 @@ class Iblock
         // Проверка, что это не инфоблок LOG
         if ($arFields["IBLOCK_ID"] != $logIblockId) {
 
-             // Получение данных элемента 
+            // Получение данных элемента 
 
             $elementId = $arFields["ID"];
             $elementName = $arFields["NAME"];
@@ -41,7 +41,7 @@ class Iblock
                 }
             }
 
-            //  Формирование описания для анонса 
+            // Формирование описания для анонса 
 
             $sectionPath = $this->getSectionPath($sectionId);
 
@@ -73,7 +73,7 @@ class Iblock
         }
     }
 
-	// Поиск раздела в инфоблоке
+    // Поиск раздела в инфоблоке
     private function findSectionByCode($iblockId, $code)
     {
         $section = SectionTable::getRow([
@@ -83,7 +83,7 @@ class Iblock
         return $section ? $section["ID"] : false;
     }
 
-	// Создание нового раздел в инфоблоке 
+    // Создание нового раздел в инфоблоке 
     private function createSection($iblockId, $code, $name)
     {
 	$section = new \CIBlockSection;
@@ -100,15 +100,15 @@ class Iblock
     }
 
     // Получение пути к разделу (от родительского к текущему) в виде строки
-    private function getSectionPath($sectionId)
+    private function getSectionPath($sectionId, $path = "")
     {
-        $path = "";
         $section = \CIBlockSection::GetByID($sectionId)->GetNext();
-        while ($section) { 
-            $path = $section["NAME"] . ($path ? " -> " : "") . $path;
-            $section = \CIBlockSection::GetByID($section["IBLOCK_SECTION_ID"])->GetNext();
+        if (!$section) {
+            return $path;
         }
-        return $path;
+		
+        $path = $section["NAME"] . ($path ? " -> " : "") . $path; 	
+		return $this->getSectionPath($section["IBLOCK_SECTION_ID"], $path); // рекурсия
     }
 
     function OnBeforeIBlockElementAddHandler(&$arFields)
