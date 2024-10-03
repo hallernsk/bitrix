@@ -87,12 +87,12 @@ class Iblock
     private function createSection($iblockId, $code, $name)
     {
 	$section = new \CIBlockSection;
-    $sectionFields = array(
-        "IBLOCK_ID" => $iblockId,
-        "NAME" => $name,
-        "CODE" => $code,
-        "ACTIVE" => "Y",
-    );
+        $sectionFields = array(
+            "IBLOCK_ID" => $iblockId,
+            "NAME" => $name,
+            "CODE" => $code,
+            "ACTIVE" => "Y",
+        );
 
     $sectionId = $section->Add($sectionFields); 
     return $sectionId ? $sectionId : false; 
@@ -108,7 +108,7 @@ class Iblock
         }
 		
         $path = $section["NAME"] . ($path ? " -> " : "") . $path; 	
-		return $this->getSectionPath($section["IBLOCK_SECTION_ID"], $path); // рекурсия
+	return $this->getSectionPath($section["IBLOCK_SECTION_ID"], $path); // рекурсия
     }
 
     function OnBeforeIBlockElementAddHandler(&$arFields)
