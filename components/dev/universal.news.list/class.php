@@ -8,18 +8,18 @@ class UniversalNewsListComponent extends \CBitrixComponent
 {
     public function onPrepareComponentParams($arParams)
     {
-		// Проверка обязательных параметров
-		if (empty($arParams["IBLOCK_ID"]) && empty($arParams["IBLOCK_TYPE"])) {
+	// Проверка обязательных параметров
+	if (empty($arParams["IBLOCK_ID"]) && empty($arParams["IBLOCK_TYPE"])) {
            ShowError("Не указаны ID и тип инфоблока");
            return false;
-		}
+	}
 
         // Подготовка параметров
         $arParams['IBLOCK_TYPE'] = trim($arParams['IBLOCK_TYPE']);
         $arParams['IBLOCK_ID'] = intval($arParams['IBLOCK_ID']);
 
         $arParams['NEWS_COUNT'] = intval($arParams['NEWS_COUNT']);
-		// Проверка NEWS_COUNT
+	// Проверка NEWS_COUNT
         if ($arParams["NEWS_COUNT"] <= 0) {
             ShowError("Параметр NEWS_COUNT должен быть положительным числом");
             $arParams["NEWS_COUNT"] = 10; //  Установка значения по умолчанию
@@ -40,7 +40,7 @@ class UniversalNewsListComponent extends \CBitrixComponent
         // проверка результата onPrepareComponentParams
         if (!$this->arParams) {
             return;
-		}
+	}
 
         $this->arResult['ITEMS'] = $this->getItems();
 
