@@ -1,14 +1,11 @@
 #### 1С-Битрикс: Управление сайтом
-#### task_5
+#### task_7
 
-Создание обработчика событий и агента (в тренировочном модуле):
-
-/local/modules/dev.site - Тренировочный модуль
-
-/local/modules/dev.site/lib/Handlers/Iblock.php - Обработчик
-
-/local/modules/dev.site/lib/Agents/Iblock.php - Агент
-
-/local/php_interface/init.php - регистрация обработчика
+Создание модуля на основе phpdevorg.cprop
+Модуль добавляет для элементов инфоблока комплексное свойство
+Один из типов комплексного свойства - HTML редактор, как в модуле d2mg.ufhtml
 
 
+/local/modules/phpdevorg.cprop - Модуль Комплексное свойство инфоблока
+
+/local/modules/d2mg.ufhtml - Модуль "Пользовательское свойcтво тип HTML/Визуальный редактор"
