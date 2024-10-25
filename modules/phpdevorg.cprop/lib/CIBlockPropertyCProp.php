@@ -11,9 +11,6 @@ class CIBlockPropertyCProp
 
     public static function GetUserTypeDescription()
     {
-		//print "GetUserTypeDescription CProp called";
-		//die();
-
         return array(
             'PROPERTY_TYPE' => 'S',
             'USER_TYPE' => 'C',
@@ -50,7 +47,7 @@ class CIBlockPropertyCProp
         $result .= ' | <a class="cl mf-delete">'.$clearText.'</a></div>';
     }
     $result .= '<table class="mf-fields-list active">';
-
+    
     foreach ($arFields as $code => $arItem){
 
             if($arItem['TYPE'] === 'string'){
@@ -70,7 +67,7 @@ class CIBlockPropertyCProp
             }
             
             else if ($arItem['TYPE'] === 'html') {
-               $result .= self::showHtml($code, $arItem['TITLE'], $value, $strHTMLControlName);
+            $result .= self::showHtml($code, $arItem['TITLE'], $value, $strHTMLControlName, $arProperty);
             }  
     }
 
@@ -82,9 +79,9 @@ class CIBlockPropertyCProp
 
     public static function GetPublicViewHTML($arProperty, $value, $strHTMLControlName)
     {
-    if(!empty($arProperty['USER_TYPE_SETTINGS'])){
+        if(!empty($arProperty['USER_TYPE_SETTINGS'])){
         $arFields = self::prepareSetting($arProperty['USER_TYPE_SETTINGS']);
-    }
+		}
 
     $result = '';
     if(!empty($value['VALUE'])) {
@@ -94,15 +91,11 @@ class CIBlockPropertyCProp
                 if(!empty($arFields[$code]['TITLE'])) {
                     $result .= $arFields[$code]['TITLE'] . ': ';
                 }
-
-
                 $result .=  $val . '<br>'; 
-
         }
-
-
     }
     return $result;
+    
     }
 
     public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
@@ -208,12 +201,19 @@ class CIBlockPropertyCProp
 
     public static function ConvertToDB($arProperty, $arValue)
     {
-    $arFields = self::prepareSetting($arProperty['USER_TYPE_SETTINGS']);
+        
+    foreach ($arValue['VALUE'] as $code => $value) {    
+      
+        if ($arFields[$code]['TYPE'] === 'html') {            
+            // Получаем значение из $_POST 
+            $htmlValueKey = 'PROP' . $arProperty['ID'] .  'VALUE' . $code;
+            if(isset($_POST[$htmlValueKey])) {
+                $arValue['VALUE'][$code] = $_POST[$htmlValueKey];
+            } else {
+                $arValue['VALUE'][$code] = ''; 
+            }
+        }
 
-    foreach ($arValue['VALUE'] as $code => $value) {
-        if ($arFields[$code]['TYPE'] === 'html') {
-            $textName = preg_replace("/([^a-z0-9])/is", "_", $arProperty["ID"]."_[TEXT]");
-            $arValue['VALUE'][$code] = $_POST[$textName]; 
         } elseif ($arFields[$code]['TYPE'] === 'file') {
             $arValue['VALUE'][$code] = self::prepareFileToDB($value);
         }
@@ -239,7 +239,6 @@ class CIBlockPropertyCProp
 
     public static function ConvertFromDB($arProperty, $arValue)
     {
-
         $return = array();
 
         if(!empty($arValue['VALUE'])){
@@ -249,8 +248,7 @@ class CIBlockPropertyCProp
                 $return['VALUE'][$code] = $value;
             }
 
-        }
-    
+        }  
         return $return;
     }
 
@@ -472,29 +470,29 @@ class CIBlockPropertyCProp
         return $result;
     }
     
-    private static function showHtml($code, $title, $arValue, $strHTMLControlName)
+    private static function showHtml($code, $title, $arValue, $strHTMLControlName, $arProperty)
 	{
-		ob_start();
-		?><input type="hidden" name="<?=$strHTMLControlName["VALUE"]?>" value=""><?php
 
-		$textName = preg_replace("/([^a-z0-9])/is", "_", $strHTMLControlName["VALUE"]."[TEXT]");
-		$textType = preg_replace("/([^a-z0-9])/is", "_", $strHTMLControlName["VALUE"]."[TYPE]");
-		$htmlValue = isset($arValue['VALUE']['TEXT']) ? htmlspecialcharsbx($arValue['VALUE']['TEXT']) : '';
+   $v = !empty($arValue['VALUE'][$code]) ? $arValue['VALUE'][$code] : '';
 
-		CFileMan::AddHTMLEditorFrame(
-			$textName,
-			$htmlValue,
-			$textType,
-			strlen($htmlValue) ? 'html' : 'text',
-			array('height' => 400),
-			"N",
-			0,
-			"",
-			""
-		);
-		$result = ob_get_contents();
-		ob_end_clean();
-		return $result;
+    $inputName = "PROP[" . $arProperty["ID"] . "][" . $code . "][VALUE]"; 
+
+    CFileMan::AddHTMLEditorFrame( 
+        $inputName,
+        $v,
+        $strHTMLControlName['VALUE'].'['.$code.']_TYPE',
+        strlen($v) ? 'html' : 'text',  
+        array(
+            'height' => 200,
+            'width' => '100%'
+        ),
+        "N", 
+        0, 
+        "", 
+       $strHTMLControlName["DESCRIPTION"]
+    );
+    
+    return '';
 	}
 
     private static function showCss()
