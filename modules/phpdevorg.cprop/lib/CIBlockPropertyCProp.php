@@ -201,24 +201,22 @@ class CIBlockPropertyCProp
 
     public static function ConvertToDB($arProperty, $arValue)
     {
-        
-    foreach ($arValue['VALUE'] as $code => $value) {    
-      
-        if ($arFields[$code]['TYPE'] === 'html') {            
-            // Получаем значение из $_POST 
-            $htmlValueKey = 'PROP' . $arProperty['ID'] .  'VALUE' . $code;
-            if(isset($_POST[$htmlValueKey])) {
-                $arValue['VALUE'][$code] = $_POST[$htmlValueKey];
-            } else {
-                $arValue['VALUE'][$code] = ''; 
-            }
-        }
-
-        } elseif ($arFields[$code]['TYPE'] === 'file') {
-            $arValue['VALUE'][$code] = self::prepareFileToDB($value);
-        }
-    }
-
+	foreach ($arValue['VALUE'] as $code => $value) {     
+	    if ($arFields[$code]['TYPE'] === 'html') {            
+		// Получаем значение из $_POST 
+		$htmlValueKey = 'PROP' . $arProperty['ID'] .  'VALUE' . $code;
+		if(isset($_POST[$htmlValueKey])) {
+	            $arValue['VALUE'][$code] = $_POST[$htmlValueKey];
+		}
+		else {
+		    $arValue['VALUE'][$code] = ''; 
+		}
+	    }
+            elseif ($arFields[$code]['TYPE'] === 'file') {
+	        $arValue['VALUE'][$code] = self::prepareFileToDB($value);
+	    }
+	}
+		
         $isEmpty = true;
         foreach ($arValue['VALUE'] as $v){
             if(!empty($v)){
@@ -234,7 +232,8 @@ class CIBlockPropertyCProp
             $arResult = ['VALUE' => '', 'DESCRIPTION' => ''];
         }
 
-        return $arResult;
+        return $arResult;        
+
     }
 
     public static function ConvertFromDB($arProperty, $arValue)
