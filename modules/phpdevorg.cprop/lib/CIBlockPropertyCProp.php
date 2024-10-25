@@ -207,7 +207,6 @@ class CIBlockPropertyCProp
 		    $arValue['VALUE'][$code] = $_POST[$htmlValueKey];
 		} else {
 		    // для новых элементов
-		    $htmlValueKey = 'PROP' . $arProperty['ID'] .  'VALUE' . $code;
 		    if(isset($_POST[$htmlValueKey])) {
 		    	$arValue['VALUE'][$code] = $_POST[$htmlValueKey];
 		    } else {
