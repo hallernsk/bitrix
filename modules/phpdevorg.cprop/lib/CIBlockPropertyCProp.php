@@ -197,22 +197,28 @@ class CIBlockPropertyCProp
 
     public static function ConvertToDB($arProperty, $arValue)
     {
-	foreach ($arValue['VALUE'] as $code => $value) {     
+	$arFields = self::prepareSetting($arProperty['USER_TYPE_SETTINGS']);
+    
+	foreach ($arValue['VALUE'] as $code => $value) {   
 	    if ($arFields[$code]['TYPE'] === 'html') {            
-		// Получаем значение из $_POST 
-		$htmlValueKey = 'PROP' . $arProperty['ID'] .  'VALUE' . $code;
-		if(isset($_POST[$htmlValueKey])) {
-	            $arValue['VALUE'][$code] = $_POST[$htmlValueKey];
+	    	$htmlValueKey = 'PROP' . $arProperty['ID'] . $code . 'VALUE'; //  Исправленный ключ
+		// Получаем значение из $_POST
+		if (isset($_POST[$htmlValueKey])) {
+		    $arValue['VALUE'][$code] = $_POST[$htmlValueKey];
+		} else {
+		    // для новых элементов
+		    $htmlValueKey = 'PROP' . $arProperty['ID'] .  'VALUE' . $code;
+		    if(isset($_POST[$htmlValueKey])) {
+		    	$arValue['VALUE'][$code] = $_POST[$htmlValueKey];
+		    } else {
+		    	$arValue['VALUE'][$code] = ''; // значение по умолчанию
+		    }
 		}
-		else {
-		    $arValue['VALUE'][$code] = ''; 
-		}
-	    }
-            elseif ($arFields[$code]['TYPE'] === 'file') {
+            } elseif ($arFields[$code]['TYPE'] === 'file') {
 	        $arValue['VALUE'][$code] = self::prepareFileToDB($value);
 	    }
 	}
-		
+
         $isEmpty = true;
         foreach ($arValue['VALUE'] as $v){
             if(!empty($v)){
@@ -228,8 +234,7 @@ class CIBlockPropertyCProp
             $arResult = ['VALUE' => '', 'DESCRIPTION' => ''];
         }
 
-        return $arResult;        
-
+        return $arResult;
     }
 
     public static function ConvertFromDB($arProperty, $arValue)
