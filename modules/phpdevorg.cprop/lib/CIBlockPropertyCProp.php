@@ -81,21 +81,17 @@ class CIBlockPropertyCProp
     {
         if(!empty($arProperty['USER_TYPE_SETTINGS'])){
         $arFields = self::prepareSetting($arProperty['USER_TYPE_SETTINGS']);
-		}
-
-    $result = '';
-    if(!empty($value['VALUE'])) {
-
-        foreach ($value['VALUE'] as $code => $val) {
-
+	}
+        $result = '';
+        if(!empty($value['VALUE'])) {
+            foreach ($value['VALUE'] as $code => $val) {  
                 if(!empty($arFields[$code]['TITLE'])) {
                     $result .= $arFields[$code]['TITLE'] . ': ';
                 }
                 $result .=  $val . '<br>'; 
+            }
         }
-    }
-    return $result;
-    
+        return $result;    
     }
 
     public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
