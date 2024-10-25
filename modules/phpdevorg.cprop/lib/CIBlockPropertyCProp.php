@@ -201,18 +201,12 @@ class CIBlockPropertyCProp
     
 	foreach ($arValue['VALUE'] as $code => $value) {   
 	    if ($arFields[$code]['TYPE'] === 'html') {            
-	    	$htmlValueKey = 'PROP' . $arProperty['ID'] . $code . 'VALUE'; //  Исправленный ключ
-		// Получаем значение из $_POST
-		if (isset($_POST[$htmlValueKey])) {
-		    $arValue['VALUE'][$code] = $_POST[$htmlValueKey];
-		} else {
-		    // для новых элементов
-		    if(isset($_POST[$htmlValueKey])) {
-		    	$arValue['VALUE'][$code] = $_POST[$htmlValueKey];
-		    } else {
-		    	$arValue['VALUE'][$code] = ''; // значение по умолчанию
-		    }
-		}
+            	$htmlValueKey = 'PROP' . $arProperty['ID'] . $code . 'VALUE';  // ключ для поля HTML-редактора
+            	if (isset($_POST[$htmlValueKey])) {
+                	$arValue['VALUE'][$code] = $_POST[$htmlValueKey];
+            	} else {
+                	$arValue['VALUE'][$code] = ''; // значение по умолчанию
+            	}
             } elseif ($arFields[$code]['TYPE'] === 'file') {
 	        $arValue['VALUE'][$code] = self::prepareFileToDB($value);
 	    }
