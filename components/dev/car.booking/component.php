@@ -122,6 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $availableCars[] = [
                     "MODEL" => $carProps["MODEL"]["VALUE"],    // Модель
                     "NUMBER" => $carProps["NUMBER"]["VALUE"],  // Госномер
+                    "COMFORT_CATEGORY" => $carProps["CCATEGORY"]["VALUE"], // Категория комфорта
                     "DRIVER" => $carProps["DRIVER"]["VALUE"], //  ФИО водителя
                 ];
             }
