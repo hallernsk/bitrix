@@ -42,7 +42,7 @@ $availableCars = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $employeeId = $_POST["employee"];
 
-    $startTime = MakeTimeStamp($_POST["start_time"], "YYYY-MM-DDTHH:MI"); //  Перевод Дата/время в timestamp
+    $startTime = MakeTimeStamp($_POST["start_time"], "YYYY-MM-DDTHH:MI"); //  Перевод Дата/время (из формы) в timestamp
     $endTime = MakeTimeStamp($_POST["end_time"], "YYYY-MM-DDTHH:MI");     
 
 
@@ -50,14 +50,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $rsEmployee = CIBlockElement::GetList(
         [],
         [
-            "IBLOCK_ID" => $IBLOCK_EMPLOYEES_ID,          // ID инфоблока "Сотрудники" (employees)
+            "IBLOCK_ID" => $IBLOCK_EMPLOYEES_ID,         
             "ID" => $employeeId,
         ],
         false,
         false,
         [
             "ID",  // ID сотрудника
-            "PROPERTY_FIO", // Имя сотрудника
+            "PROPERTY_FIO", // ФИО
             "PROPERTY_POSITION", // Должность
         ]
     );
@@ -122,7 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         );
 
         while ($arBooking = $rsBookings->GetNext()) {
-            $tripStartTime = MakeTimeStamp($arBooking["PROPERTY_START_TIME_VALUE"], "DD.MM.YYYY HH:MI:SS"); // Преобразование в timestamp
+            $tripStartTime = MakeTimeStamp($arBooking["PROPERTY_START_TIME_VALUE"], "DD.MM.YYYY HH:MI:SS"); // Перевод Дата/время (из ИБ) в timestamp
             $tripEndTime = MakeTimeStamp($arBooking["PROPERTY_END_TIME_VALUE"], "DD.MM.YYYY HH:MI:SS");   
 
             if ($startTime < $tripEndTime && $endTime > $tripStartTime) {
@@ -152,7 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <label for="employee">Сотрудник:</label><br>
     <select name="employee" id="employee">
         <?
-        $resEmployees = CIBlockElement::GetList([], ["IBLOCK_ID" => 5], false, false, ["ID", "NAME"]);
+        $resEmployees = CIBlockElement::GetList([], ["IBLOCK_ID" => $IBLOCK_EMPLOYEES_ID], false, false, ["ID", "NAME"]);
         while ($obEmployee = $resEmployees->GetNextElement()) {
             $fields = $obEmployee->GetFields();
             echo "<option value=\"" . $fields["ID"] . "\">" . $fields["NAME"] . "</option>";
