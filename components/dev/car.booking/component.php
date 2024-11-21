@@ -9,7 +9,7 @@ if (!Loader::includeModule('iblock')) {
     return;
 }
 
-// определение ID инфоблоков по символьному коду
+// Определение ID инфоблоков по символьному коду
 
 // Сотрудники
 $iblock_employees = \CIBlock::GetList([], ['CODE' => 'employees', 'TYPE' => 'references'])->Fetch();
@@ -32,13 +32,17 @@ $IBLOCK_COMFORT_CATEGORIES_ID = $iblock_comfort_categories['ID'];
 $iblock_trips = \CIBlock::GetList([], ['CODE' => 'trips', 'TYPE' => 'references'])->Fetch();
 $IBLOCK_TRIPS_ID = $iblock_trips['ID'];
 
+// Выбор категории комфорта
+$iblock_select_ccategories = \CIBlock::GetList([], ['CODE' => 'select_ccategories', 'TYPE' => 'references'])->Fetch();
+$IBLOCK_SELECT_CCATEGORIES_ID = $iblock_select_ccategories['ID'];
+
 
 // Обработка данных формы
 $availableCars = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $employeeId = $_POST["employee"];
 
-    $startTime = MakeTimeStamp($_POST["start_time"], "YYYY-MM-DDTHH:MI"); //  перевод Дата/время в timestamp
+    $startTime = MakeTimeStamp($_POST["start_time"], "YYYY-MM-DDTHH:MI"); //  Перевод Дата/время в timestamp
     $endTime = MakeTimeStamp($_POST["end_time"], "YYYY-MM-DDTHH:MI");     
 
 
@@ -46,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $rsEmployee = CIBlockElement::GetList(
         [],
         [
-            "IBLOCK_ID" => $IBLOCK_EMPLOYEES_ID,          // Идентификатор инфоблока сотрудников (employees)
+            "IBLOCK_ID" => $IBLOCK_EMPLOYEES_ID,          // ID инфоблока "Сотрудники" (employees)
             "ID" => $employeeId,
         ],
         false,
@@ -58,65 +62,75 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ]
     );
     
+    
     if ($arEmployee = $rsEmployee->Fetch()) {
 
-        $positionId = $arEmployee["PROPERTY_POSITION_VALUE"]; //TODO:
+        $positionId = $arEmployee["PROPERTY_POSITION_VALUE"];       
+
         
-
-        // 2. Получение доступных категорий комфорта для должности
-        // ... пока массивом:
-        $comfortCategoriesByPosition = [
-            317 => [330], 
-            318 => [331, 332],
-            319 => [330, 331], 
-            320 => [332], 
-        ];
-        $availableComfortCategoryIds = isset($comfortCategoriesByPosition[$positionId]) ? $comfortCategoriesByPosition[$positionId] : [];
-        
-        // 3. Получение списка автомобилей доступных категорий
-        $arFilterCars = [
-            "IBLOCK_ID" => $IBLOCK_CARS_ID,   // Идентификатор инфоблока автомобилей cars
-            "PROPERTY_CCATEGORY" => $availableComfortCategoryIds,
-            "ACTIVE" => "Y"
-        ];
-        $arSelectCars = ["ID", "PROPERTY_NUMBER", "PROPERTY_MODEL", "PROPERTY_DRIVER", "PROPERTY_CCATEGORY"];
-
-        $resCars = CIBlockElement::GetList([], $arFilterCars); // так работает (выбираем все свойства)
-
-
-        while ($obCar = $resCars->GetNextElement()) {
-            $carFields = $obCar->GetFields();
-            
-            $carProps = $obCar->GetProperties();
-            
-            $carId = $carFields["ID"];
-       
-            // 4. Проверка бронирования
-    $isBooked = false; 
-
-    $rsBookings = CIBlockElement::GetList(
+    // 2. Получение доступных категорий комфорта для должности (из инфоблока)
+    $resComfortAccess = CIBlockElement::GetList(
         [],
         [
-            "IBLOCK_ID" => $IBLOCK_TRIPS_ID, // trips
-            "PROPERTY_CAR" => $carId,
-            "ACTIVE" => "Y"
+            "IBLOCK_ID" => $IBLOCK_SELECT_CCATEGORIES_ID, 
+            "PROPERTY_POSITION" => $positionId,
         ],
         false,
         false,
-        ["PROPERTY_START_TIME", "PROPERTY_END_TIME"]
+        ["ID", "PROPERTY_POSITION", "PROPERTY_CCATEGORIES"]
     );
 
-    while ($arBooking = $rsBookings->GetNext()) {
-        $tripStartTime = MakeTimeStamp($arBooking["PROPERTY_START_TIME_VALUE"], "DD.MM.YYYY HH:MI:SS"); // Преобразование в timestamp
-        $tripEndTime = MakeTimeStamp($arBooking["PROPERTY_END_TIME_VALUE"], "DD.MM.YYYY HH:MI:SS");     // 
 
+    $availableComfortCategoryIds = [];
 
-        if ($startTime < $tripEndTime && $endTime > $tripStartTime) {
-            // Автомобиль забронирован на это время
-            $isBooked = true;
-            break; // Выходим из цикла, так как нашли бронирование
-        }
+    while ($arComfortAccess = $resComfortAccess->GetNext()) { 
+        $comfortCategories = $arComfortAccess["PROPERTY_CCATEGORIES_VALUE"];
+        $availableComfortCategoryIds[] = $comfortCategories;
     }
+  
+    // 3. Получение списка автомобилей доступных категорий
+    $arFilterCars = [
+        "IBLOCK_ID" => $IBLOCK_CARS_ID,   
+        "PROPERTY_CCATEGORY" => $availableComfortCategoryIds,
+        "ACTIVE" => "Y"
+    ];
+
+    $arSelectCars = ["ID", "PROPERTY_NUMBER", "PROPERTY_MODEL", "PROPERTY_DRIVER", "PROPERTY_CCATEGORY"];
+
+    $resCars = CIBlockElement::GetList([], $arFilterCars); 
+
+    while ($obCar = $resCars->GetNextElement()) {
+        $carFields = $obCar->GetFields();
+            
+        $carProps = $obCar->GetProperties();
+            
+        $carId = $carFields["ID"];
+       
+        // 4. Проверка бронирования
+        $isBooked = false; 
+
+        $rsBookings = CIBlockElement::GetList(
+            [],
+            [
+                "IBLOCK_ID" => $IBLOCK_TRIPS_ID, 
+                "PROPERTY_CAR" => $carId,
+                "ACTIVE" => "Y"
+            ],
+            false,
+            false,
+            ["PROPERTY_START_TIME", "PROPERTY_END_TIME"]
+        );
+
+        while ($arBooking = $rsBookings->GetNext()) {
+            $tripStartTime = MakeTimeStamp($arBooking["PROPERTY_START_TIME_VALUE"], "DD.MM.YYYY HH:MI:SS"); // Преобразование в timestamp
+            $tripEndTime = MakeTimeStamp($arBooking["PROPERTY_END_TIME_VALUE"], "DD.MM.YYYY HH:MI:SS");   
+
+            if ($startTime < $tripEndTime && $endTime > $tripStartTime) {
+                // Автомобиль забронирован на это время
+                $isBooked = true;
+                break; // Выходим из цикла, так как нашли бронирование
+            }
+        }
 
             if (!$isBooked) {
                 $availableCars[] = [
@@ -158,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 <?
-//  Вывод списка доступных автомобилей (для проверки)
+//  5. Вывод списка доступных автомобилей (для проверки)
 if (!empty($availableCars)) {
   echo "<pre>";
   print_r($availableCars);
