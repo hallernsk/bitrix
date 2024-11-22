@@ -172,12 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 <?
-//  5. Вывод списка доступных автомобилей (для проверки)
-if (!empty($availableCars)) {
-  echo "<pre>";
-  print_r($availableCars);
-  echo "</pre>";
-} else {
-   print_r("На указанное время свободных автомобилей нет."); 
-}
+//  5. Передача списка доступных автомобилей в шаблон для вывода
+$arResult["AVAILABLE_CARS"] = $availableCars;
+$this->IncludeComponentTemplate();
 ?>
