@@ -36,6 +36,10 @@ $IBLOCK_TRIPS_ID = $iblock_trips['ID'];
 $iblock_select_ccategories = \CIBlock::GetList([], ['CODE' => 'select_ccategories', 'TYPE' => 'references'])->Fetch();
 $IBLOCK_SELECT_CCATEGORIES_ID = $iblock_select_ccategories['ID'];
 
+// Водители
+$iblock_drivers = \CIBlock::GetList([], ['CODE' => 'drivers', 'TYPE' => 'references'])->Fetch();
+$IBLOCK_DRIVERS_ID = $iblock_drivers['ID'];
+
 
 // Обработка данных формы
 $availableCars = [];
@@ -68,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $positionId = $arEmployee["PROPERTY_POSITION_VALUE"];       
 
         
-    // 2. Получение доступных категорий комфорта для должности (из инфоблока)
+    // Получение доступных категорий комфорта для должности (из инфоблока)
     $resComfortAccess = CIBlockElement::GetList(
         [],
         [
@@ -88,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $availableComfortCategoryIds[] = $comfortCategories;
     }
   
-    // 3. Получение списка автомобилей доступных категорий
+    // Получение списка автомобилей доступных категорий
     $arFilterCars = [
         "IBLOCK_ID" => $IBLOCK_CARS_ID,   
         "PROPERTY_CCATEGORY" => $availableComfortCategoryIds,
@@ -105,8 +109,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $carProps = $obCar->GetProperties();
             
         $carId = $carFields["ID"];
+
+
+        $driverId = $carProps["DRIVER"]["VALUE"];  // ID водителя
+
+        // Определение ФИО водителя
+        $driverFio = ''; 
+        if ($driverId > 0) { 
+            $fioProperty = CIBlockElement::GetProperty(
+                $IBLOCK_DRIVERS_ID, // ID инфоблока "Водители"
+                $driverId,  // ID водителя
+                [], 
+                ['CODE' => 'FIO'] //  Символьный код свойства "FIO"
+            );            
+ 
+            if ($arFio = $fioProperty->Fetch()) {                      
+                $driverFio = $arFio['VALUE'];
+            }
+        }
+
        
-        // 4. Проверка бронирования
+        // Проверка бронирования
         $isBooked = false; 
 
         $rsBookings = CIBlockElement::GetList(
@@ -128,7 +151,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($startTime < $tripEndTime && $endTime > $tripStartTime) {
                 // Автомобиль забронирован на это время
                 $isBooked = true;
-                break; // Выходим из цикла, так как нашли бронирование
+                break; // Выходим из цикла, так как нашли бронирование (автомобиль занят)
             }
         }
 
@@ -136,8 +159,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $availableCars[] = [
                     "MODEL" => $carProps["MODEL"]["VALUE"],    // Модель
                     "NUMBER" => $carProps["NUMBER"]["VALUE"],  // Госномер
-                    "COMFORT_CATEGORY" => $carProps["CCATEGORY"]["VALUE"], // Категория комфорта
-                    "DRIVER" => $carProps["DRIVER"]["VALUE"], //  ФИО водителя
+                    "DRIVER" => $driverFio, //  ФИО водителя
                 ];
             }
         }
@@ -172,7 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 <?
-//  5. Передача списка доступных автомобилей в шаблон для вывода
+//  Передача списка доступных автомобилей в шаблон для вывода
 $arResult["AVAILABLE_CARS"] = $availableCars;
 $this->IncludeComponentTemplate();
 ?>
